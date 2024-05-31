@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import NewsScreen from './NewsScreen';
 import SearchScreen from './SearchScreen';
-import AddScreen from './AddScreen';
+import MessageScreen from './MessageScreen';
 import SettingsScreen from './SettingsScreen';
 import ProfileScreen from './ProfileScreen';
 
@@ -49,16 +49,16 @@ const HomeScreen = () => {
             ),
           }}
         />
-        <Tab.Screen
-          name="Add"
-          component={AddScreen}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="add-circle-outline" size={size} color={color} />
-            ),
-          }}
-        />
+     <Tab.Screen
+  name="Message"
+  component={MessageScreen}
+  options={{
+    headerShown: false,
+    tabBarIcon: ({ color, size }) => (
+      <Ionicons name="chatbubbles-outline" size={size} color={color} />
+    ),
+  }}
+/>
         <Tab.Screen
           name="Settings"
           component={SettingsScreen}

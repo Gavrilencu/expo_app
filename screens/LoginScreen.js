@@ -1,15 +1,62 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ImageBackground } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleLogin = () => {
-    // Aici poți adăuga logica pentru autentificare
-    console.log('Email:', email);
-    console.log('Password:', password);
+    if (!email || !password) {
+      setError('Completati toate cimpurile...');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError('Introduceti o adresa de email valida');
+      return;
+    }
+
+    const data = { email: email, password: password };
+    
+    fetch('http://192.168.0.60:3000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(result => {
+      // Verifică dacă autentificarea a fost reușită și dacă răspunsul conține datele necesare
+      if (result.authentication === true && result && result.email && result.username) {
+        // Salvează datele în local storage
+        AsyncStorage.setItem('email', result.email)
+  .then(() => AsyncStorage.setItem('username', result.username))
+  .then(() => AsyncStorage.setItem('id', result.id.toString())) // Salvăm id-ul ca un șir de caractere
+  .then(() => {
     navigation.navigate('Home');
+  })
+  .catch(err => {
+    console.error('Error saving data:', err);
+    setError('A apărut o eroare. Vă rugăm să încercați din nou mai târziu.');
+  });
+
+      } else {
+        setError(result.error);
+      }
+    })
+    
+    .catch(error => {
+      console.error('Error:', error);
+      setError('A apărut o eroare. Vă rugăm să încercați din nou mai târziu.');
+    });
+  };
+
+  const isValidEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
   };
 
   return (
@@ -29,6 +76,7 @@ const LoginScreen = ({ navigation }) => {
           secureTextEntry
           style={styles.input}
         />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TouchableOpacity
           style={[styles.button, { backgroundColor: '#40A578' }]}
           onPress={handleLogin}
@@ -95,6 +143,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 20,
   },
 });
 
